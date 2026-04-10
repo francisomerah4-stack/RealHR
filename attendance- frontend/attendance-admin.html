@@ -1,0 +1,799 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RealHR – Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#08080f;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#4fa3e3;--accent2:#7ec8f7;--ap:rgba(79,163,227,0.15);--ag:rgba(79,163,227,0.3);--text:#f0f4ff;--text2:rgba(240,244,255,0.6);--text3:rgba(240,244,255,0.3);--success:#4ade80;--warning:#fbbf24;--danger:#f87171;--glass:rgba(255,255,255,0.04);--gb:rgba(255,255,255,0.1);--bb:rgba(79,163,227,0.18);--bbd:rgba(79,163,227,0.4);--bbh:rgba(79,163,227,0.28);--rb:50px;--sw:240px;}
+[data-theme="light"]{--bg:#eef2f7;--border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);--text:#0f1629;--text2:rgba(15,22,41,0.65);--text3:rgba(15,22,41,0.35);--glass:rgba(255,255,255,0.5);--gb:rgba(255,255,255,0.8);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 50% at 10% 10%,rgba(79,163,227,0.1),transparent 60%),radial-gradient(ellipse 50% 40% at 90% 90%,rgba(126,200,247,0.07),transparent 55%);}
+.glass{background:var(--glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid var(--gb);border-radius:18px;}
+.glass-d{background:rgba(10,10,24,0.9);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:1px solid rgba(79,163,227,0.22);border-radius:22px;box-shadow:0 24px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.03) inset,0 1px 0 rgba(255,255,255,0.1) inset;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 22px;border-radius:var(--rb);border:1px solid var(--bbd);background:var(--bb);color:var(--accent2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.22s;backdrop-filter:blur(10px);position:relative;overflow:hidden;white-space:nowrap;}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.09),transparent 60%);pointer-events:none;}
+.btn:hover{background:var(--bbh);border-color:var(--accent);box-shadow:0 4px 20px var(--ag);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn:disabled{opacity:0.55;cursor:not-allowed;pointer-events:none;}
+.btn-p{background:linear-gradient(135deg,rgba(79,163,227,0.38),rgba(126,200,247,0.2));border-color:rgba(126,200,247,0.55);color:#fff;font-weight:600;box-shadow:0 0 25px rgba(79,163,227,0.2);}
+.btn-p:hover{box-shadow:0 4px 30px rgba(79,163,227,0.4);}
+.btn-d{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.12);color:var(--danger);}
+.btn-d:hover{background:rgba(248,113,113,0.22);}
+.btn-s{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:var(--success);}
+.btn-w{border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.12);color:var(--warning);}
+.btn-sm{padding:5px 13px;font-size:11px;}
+.btn-full{width:100%;}
+.input{width:100%;padding:11px 15px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:all 0.2s;}
+.input:focus{border-color:var(--accent);background:rgba(79,163,227,0.06);box-shadow:0 0 0 3px var(--ap);}
+.input::placeholder{color:var(--text3);}
+select.input{appearance:none;cursor:pointer;}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
+.fl{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.05em;text-transform:uppercase;}
+.err{padding:9px 13px;border-radius:11px;font-size:12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--danger);display:none;margin-bottom:10px;}
+.err.show{display:block;}
+/* WELCOME BACK */
+#wb-screen{position:fixed;inset:0;z-index:901;display:none;align-items:center;justify-content:center;background:var(--bg);text-align:center;padding:24px;}
+#wb-screen.show{display:flex;}
+.wb-av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff;margin:0 auto 14px;box-shadow:0 0 30px rgba(79,163,227,0.4);}
+.wb-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
+.wb-sub{font-size:13px;color:var(--text2);}
+.spinner{width:28px;height:28px;border:2px solid rgba(79,163,227,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:18px auto 0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* AUTH */
+#auth-screen{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
+#auth-screen.gone{display:none;}
+.ac{width:100%;max-width:400px;padding:34px 30px;}
+.ac-logo{text-align:center;margin-bottom:20px;}
+.ac-logo .li{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,rgba(79,163,227,0.3),rgba(126,200,247,0.15));border:1px solid rgba(79,163,227,0.4);display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:10px;}
+.ac-logo h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+.ac-logo h1 span{color:var(--accent);}
+.ac-logo p{font-size:12px;color:var(--text2);}
+.tab-sw{display:flex;gap:6px;padding:4px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--rb);margin-bottom:18px;}
+.atab{flex:1;padding:8px;border-radius:var(--rb);border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.atab.active{background:var(--bb);border:1px solid var(--bbd);color:var(--accent2);}
+.aform{display:none;flex-direction:column;gap:13px;}
+.aform.active{display:flex;}
+.afoot{text-align:center;font-size:12px;color:var(--text3);line-height:1.9;}
+.lnk{color:var(--accent);cursor:pointer;text-decoration:underline;}
+.hint{font-size:11px;color:var(--text3);padding:8px 12px;border-radius:10px;background:rgba(79,163,227,0.07);border:1px solid rgba(79,163,227,0.15);}
+/* SIDEBAR */
+.sidebar{width:var(--sw);min-height:100vh;position:fixed;left:0;top:0;z-index:50;display:flex;flex-direction:column;background:rgba(8,8,15,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid var(--border);padding:22px 0;}
+[data-theme="light"] .sidebar{background:rgba(238,242,247,0.96);}
+.sb-logo{padding:0 18px 20px;border-bottom:1px solid var(--border);}
+.sb-logo h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;}
+.sb-logo h1 span{color:var(--accent);}
+.sb-logo p{font-size:11px;color:var(--text3);margin-top:2px;}
+.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:3px;}
+.nl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:13px;cursor:pointer;transition:all 0.2s;color:var(--text2);font-size:13px;font-weight:500;border:1px solid transparent;position:relative;}
+.nl:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+.nl.active{background:var(--bb);border-color:var(--bbd);color:var(--accent2);}
+.nl .ni{font-size:16px;width:20px;text-align:center;}
+.nbadge{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--danger);color:#fff;font-size:9px;font-weight:700;margin-left:auto;}
+.sb-foot{padding:14px 18px;border-top:1px solid var(--border);}
+.adm-badge{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);}
+.adm-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
+.adm-info h4{font-size:12px;font-weight:600;}
+.adm-info p{font-size:10px;color:var(--text3);}
+.divider{height:1px;background:var(--border);margin:8px 0;}
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column;}
+.mhdr{position:sticky;top:0;z-index:40;padding:15px 26px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,8,15,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+[data-theme="light"] .mhdr{background:rgba(238,242,247,0.94);}
+.mhdr h2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
+.mhdr-r{display:flex;align-items:center;gap:10px;}
+.live-dot{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--rb);font-size:11px;color:var(--success);background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);}
+.live-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.mcontent{flex:1;padding:22px 26px;overflow-y:auto;}
+.page{display:none;}.page.active{display:block;}
+.phdr{margin-bottom:22px;}
+.phdr h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;}
+.phdr p{font-size:13px;color:var(--text2);margin-top:4px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px;}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+.kpi{padding:18px;position:relative;overflow:hidden;transition:transform 0.2s;}
+.kpi:hover{transform:translateY(-2px);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);}
+.kpi-n{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--accent2);}
+.kpi-l{font-size:12px;color:var(--text2);margin-top:3px;}
+.kpi-i{font-size:22px;position:absolute;top:14px;right:14px;opacity:0.3;}
+.tw{overflow-x:auto;border-radius:18px;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:11px 15px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:12px 15px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody tr:hover{background:rgba(255,255,255,0.02);}
+tbody tr:last-child td{border-bottom:none;}
+.chip{padding:4px 11px;border-radius:var(--rb);font-size:11px;font-weight:500;display:inline-flex;align-items:center;}
+.cs{background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:var(--success);}
+.cw{background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:var(--warning);}
+.cd{background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:var(--danger);}
+.ci{background:rgba(79,163,227,0.15);border:1px solid rgba(79,163,227,0.3);color:var(--accent2);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+@media(max-width:1000px){.two-col{grid-template-columns:1fr;}}
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;}
+.sec-hdr h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+.ecard{padding:16px;position:relative;overflow:hidden;}
+.ecard-hdr{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.eav{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.eav-info h4{font-size:14px;font-weight:600;}
+.eav-info p{font-size:11px;color:var(--text2);}
+.edet{display:flex;flex-direction:column;gap:4px;}
+.edet-row{display:flex;justify-content:space-between;font-size:12px;}
+.edet-lbl{color:var(--text2);}
+.eact{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.settings-sections{display:flex;flex-direction:column;gap:18px;}
+.sc{padding:20px;}
+.sc h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+.sr:last-child{border-bottom:none;}
+.sr-l h4{font-size:13px;font-weight:500;}
+.sr-l p{font-size:11px;color:var(--text2);margin-top:2px;}
+.toggle{width:44px;height:24px;border-radius:var(--rb);background:rgba(255,255,255,0.1);border:1px solid var(--border2);position:relative;cursor:pointer;transition:all 0.3s;flex-shrink:0;}
+.toggle.on{background:rgba(79,163,227,0.4);border-color:var(--accent);}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:all 0.3s;}
+.toggle.on::after{left:22px;}
+#map-container{width:100%;height:280px;border-radius:14px;overflow:hidden;border:1px solid var(--border2);margin-bottom:14px;position:relative;}
+#gmap{width:100%;height:100%;}
+.map-info-overlay{position:absolute;bottom:10px;left:10px;background:rgba(10,10,24,0.92);backdrop-filter:blur(10px);padding:8px 12px;border-radius:10px;font-size:12px;border:1px solid var(--border2);color:var(--text);z-index:5;pointer-events:none;}
+.rtypes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:18px;}
+.rtype{padding:13px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid var(--border2);border-radius:13px;background:var(--glass);}
+.rtype:hover,.rtype.sel{border-color:var(--bbd);background:var(--bb);box-shadow:0 0 20px var(--ag);}
+.rt-icon{font-size:20px;margin-bottom:5px;}
+.rt-lbl{font-size:12px;font-weight:600;}
+.litem{padding:13px 15px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border);gap:10px;}
+.litem:last-child{border-bottom:none;}
+.li-info h4{font-size:13px;font-weight:600;}
+.li-info p{font-size:11px;color:var(--text2);margin-top:2px;max-width:280px;}
+.li-act{display:flex;gap:6px;flex-shrink:0;flex-direction:column;align-items:flex-end;}
+.modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:22px;}
+.modal-overlay.open{display:flex;}
+.modal{width:100%;max-width:460px;padding:26px 22px;position:relative;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:18px;}
+.modal-x{position:absolute;top:13px;right:13px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text2);}
+.mfooter{display:flex;gap:10px;margin-top:18px;}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:var(--rb);font-size:13px;font-weight:500;z-index:9999;transition:opacity 0.3s;opacity:0;pointer-events:none;backdrop-filter:blur(20px);}
+.toast.show{opacity:1;}
+.t-s{background:rgba(74,222,128,0.2);border:1px solid rgba(74,222,128,0.4);color:var(--success);}
+.t-e{background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.4);color:var(--danger);}
+.t-i{background:rgba(79,163,227,0.2);border:1px solid rgba(79,163,227,0.4);color:var(--accent2);}
+.empty{text-align:center;padding:36px;color:var(--text3);}
+.empty-icon{font-size:32px;margin-bottom:8px;}
+.sb-bar{display:flex;gap:10px;align-items:center;margin-bottom:14px;}
+.sb-bar .input{border-radius:var(--rb);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);transition:transform 0.3s;}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.two-col{grid-template-columns:1fr;}}
+.menu-tog{display:none;padding:8px;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;}
+@media(max-width:768px){.menu-tog{display:block;}}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- WELCOME BACK -->
+<div id="wb-screen">
+  <div>
+    <div class="wb-av" id="wb-av">A</div>
+    <div class="wb-title">Welcome back, <span id="wb-name" style="color:var(--accent);">Admin</span>! 👋</div>
+    <div class="wb-sub" id="wb-sub">Loading your dashboard…</div>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="ac glass-d">
+    <div class="ac-logo">
+      <div class="li">👥</div>
+      <h1>Real<span>HR</span></h1>
+      <p>Admin Portal — Authorized access only</p>
+    </div>
+    <div class="tab-sw">
+      <button class="atab active" id="at-si" onclick="switchAuthTab('signin')">Sign In</button>
+      <button class="atab" id="at-su" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <div class="aform active" id="af-signin">
+      <div class="fg"><label class="fl">Email</label><input class="input" id="si-email" type="email" placeholder="admin@company.com" autocomplete="email"/></div>
+      <div class="fg"><label class="fl">Password</label><input class="input" id="si-pwd" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+      <div class="err" id="si-err"></div>
+      <button class="btn btn-p btn-full" id="si-btn" onclick="adminSignIn()">Sign In →</button>
+      <div class="afoot"><span class="lnk" onclick="doForgot()">Forgot password?</span><br/><a href="attendance-employee.html" style="color:var(--accent);">← Employee Portal</a></div>
+    </div>
+    <div class="aform" id="af-signup">
+      <div class="fg"><label class="fl">Full Name</label><input class="input" id="su-name" placeholder="Admin Name"/></div>
+      <div class="fg"><label class="fl">Email</label><input class="input" id="su-email" type="email" placeholder="admin@company.com"/></div>
+      <div class="fg"><label class="fl">Password (min 6 chars)</label><input class="input" id="su-pwd" type="password" placeholder="••••••••"/></div>
+      <div class="fg">
+        <label class="fl">Company Admin Code</label>
+        <input class="input" id="su-code" placeholder="Enter admin code"/>
+        <div class="hint">💡 Default code: <strong style="color:var(--accent2);">IMA1904</strong> — or use your company registration code.</div>
+      </div>
+      <div class="err" id="su-err"></div>
+      <button class="btn btn-p btn-full" id="su-btn" onclick="adminSignUp()">Create Admin Account →</button>
+      <div class="afoot">Have account? <span class="lnk" onclick="switchAuthTab('signin')">Sign In</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo"><h1>Real<span>HR</span></h1><p>Admin Dashboard</p></div>
+  <nav class="sb-nav">
+    <div class="nl active" onclick="showPage('live')" id="nl-live"><span class="ni">📡</span>Live Attendance</div>
+    <div class="nl" onclick="showPage('employees')" id="nl-employees"><span class="ni">👥</span>Employees</div>
+    <div class="nl" onclick="showPage('records')" id="nl-records"><span class="ni">📋</span>Records</div>
+    <div class="nl" onclick="showPage('leave')" id="nl-leave"><span class="ni">📝</span>Leave<span class="nbadge" id="lv-badge" style="display:none;">0</span></div>
+    <div class="nl" onclick="showPage('complaints')" id="nl-complaints"><span class="ni">💬</span>Complaints<span class="nbadge" id="cp-badge" style="display:none;">0</span></div>
+    <div class="nl" onclick="showPage('reports')" id="nl-reports"><span class="ni">📊</span>Reports</div>
+    <div class="nl" onclick="showPage('settings')" id="nl-settings"><span class="ni">⚙️</span>Settings</div>
+    <div class="divider"></div>
+    <div class="nl" onclick="adminLogout()" style="color:var(--danger);"><span class="ni">🚪</span>Sign Out</div>
+  </nav>
+  <div class="sb-foot">
+    <div class="adm-badge">
+      <div class="adm-av" id="adm-av">A</div>
+      <div class="adm-info"><h4 id="adm-name">Admin</h4><p>Administrator</p></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="main-app" style="display:none;">
+  <header class="mhdr">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="menu-tog" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <h2 id="page-title">Live Attendance</h2>
+    </div>
+    <div class="mhdr-r">
+      <div class="live-dot">LIVE</div>
+      <div id="adm-clock" style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text2);"></div>
+      <button class="btn btn-sm btn-p" onclick="showPage('employees');openM('m-add-emp')">+ Add Employee</button>
+    </div>
+  </header>
+  <div class="mcontent">
+
+    <!-- LIVE -->
+    <div class="page active" id="page-live">
+      <div class="kpi-grid">
+        <div class="kpi glass"><div class="kpi-n" id="kpi-present">—</div><div class="kpi-l">Present Today</div><div class="kpi-i">✅</div></div>
+        <div class="kpi glass"><div class="kpi-n" id="kpi-absent">—</div><div class="kpi-l">Absent Today</div><div class="kpi-i">❌</div></div>
+        <div class="kpi glass"><div class="kpi-n" id="kpi-late">—</div><div class="kpi-l">Late Arrivals</div><div class="kpi-i">⏰</div></div>
+        <div class="kpi glass"><div class="kpi-n" id="kpi-out">—</div><div class="kpi-l">Checked Out</div><div class="kpi-i">🚪</div></div>
+      </div>
+      <div class="sec-hdr"><h3>Today's Feed</h3>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="loadLive()">🔄 Refresh</button>
+          <button class="btn btn-sm" onclick="openM('m-manual-ci')">Manual CI</button>
+          <button class="btn btn-sm btn-p" onclick="exportToday()">Export CSV</button>
+        </div>
+      </div>
+      <div class="glass tw" style="margin-bottom:20px;">
+        <table><thead><tr><th>Employee</th><th>Dept</th><th>Check-In</th><th>Check-Out</th><th>Hours</th><th>Status</th></tr></thead>
+        <tbody id="live-tbody"></tbody></table>
+      </div>
+      <div class="two-col">
+        <div class="glass" style="padding:16px;"><div class="sec-hdr"><h3>By Department</h3></div><div id="dept-bd"></div></div>
+        <div class="glass" style="padding:16px;"><div class="sec-hdr"><h3>Alerts</h3></div><div id="alerts"></div></div>
+      </div>
+    </div>
+
+    <!-- EMPLOYEES -->
+    <div class="page" id="page-employees">
+      <div class="phdr"><h2>Employee Management</h2><p>Manage your workforce</p></div>
+      <div class="sb-bar">
+        <input class="input" type="text" placeholder="🔍 Search…" id="emp-search" oninput="renderEmps()"/>
+        <button class="btn btn-p" onclick="openM('m-add-emp')">+ Add</button>
+      </div>
+      <div class="emp-grid" id="emp-grid"><div class="empty"><div class="empty-icon">⏳</div>Loading…</div></div>
+    </div>
+
+    <!-- RECORDS -->
+    <div class="page" id="page-records">
+      <div class="phdr"><h2>Attendance Records</h2><p>Full history</p></div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <input class="input" type="date" id="f-date" style="max-width:180px;" onchange="loadRecords()"/>
+        <select class="input" style="max-width:170px;" id="f-dept" onchange="loadRecords()">
+          <option value="">All Depts</option>
+          <option>Sales</option><option>IT</option><option>HR</option><option>Finance</option><option>Operations</option><option>General</option>
+        </select>
+        <select class="input" style="max-width:150px;" id="f-status" onchange="loadRecords()">
+          <option value="">All</option><option>Present</option><option>Late</option><option>Absent</option>
+        </select>
+        <button class="btn btn-sm" onclick="clearFilters()">Clear</button>
+      </div>
+      <div class="glass tw">
+        <table><thead><tr><th>Date</th><th>Employee</th><th>Dept</th><th>In</th><th>Out</th><th>Hours</th><th>Status</th><th>Device</th></tr></thead>
+        <tbody id="rec-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- LEAVE -->
+    <div class="page" id="page-leave">
+      <div class="phdr"><h2>Leave Requests</h2><p>Approve or reject employee leave</p></div>
+      <div class="glass"><div id="lv-list" style="padding:6px;"><div class="empty"><div class="empty-icon">⏳</div>Loading…</div></div></div>
+    </div>
+
+    <!-- COMPLAINTS -->
+    <div class="page" id="page-complaints">
+      <div class="phdr"><h2>Complaints</h2><p>Employee complaints</p></div>
+      <div class="glass"><div id="cp-list" style="padding:6px;"><div class="empty"><div class="empty-icon">⏳</div>Loading…</div></div></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="phdr"><h2>Reports</h2><p>Export attendance data</p></div>
+      <div class="rtypes">
+        <div class="rtype sel" onclick="selRpt('daily',this)"><div class="rt-icon">📅</div><div class="rt-lbl">Daily</div></div>
+        <div class="rtype" onclick="selRpt('monthly',this)"><div class="rt-icon">📆</div><div class="rt-lbl">Monthly</div></div>
+        <div class="rtype" onclick="selRpt('dept',this)"><div class="rt-icon">🏢</div><div class="rt-lbl">Department</div></div>
+        <div class="rtype" onclick="selRpt('late',this)"><div class="rt-icon">⏰</div><div class="rt-lbl">Late</div></div>
+        <div class="rtype" onclick="selRpt('overtime',this)"><div class="rt-icon">🔥</div><div class="rt-lbl">Overtime</div></div>
+      </div>
+      <div class="glass" style="padding:18px;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div class="fg"><label class="fl">From</label><input class="input" type="date" id="rpt-from"/></div>
+          <div class="fg"><label class="fl">To</label><input class="input" type="date" id="rpt-to"/></div>
+          <div class="fg"><label class="fl">Dept</label>
+            <select class="input" id="rpt-dept"><option value="">All</option><option>Sales</option><option>IT</option><option>HR</option><option>Finance</option><option>Operations</option></select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-p" onclick="exportRpt('xlsx')">📊 Excel</button>
+          <button class="btn" onclick="exportRpt('pdf')">📄 PDF</button>
+          <button class="btn" onclick="exportRpt('csv')">📋 CSV</button>
+        </div>
+      </div>
+      <div class="glass tw">
+        <table><thead><tr><th>Date</th><th>Employee</th><th>Dept</th><th>In</th><th>Out</th><th>Hours</th><th>Status</th></tr></thead>
+        <tbody id="rpt-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="phdr"><h2>Settings</h2><p>System configuration</p></div>
+      <div class="settings-sections">
+        <div class="sc glass">
+          <h3>📍 Office Location & Geofence</h3>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:14px;">Click on the map to pin your office. Employees must be within the radius to check in.</p>
+          <div id="map-container">
+            <div id="gmap"></div>
+            <div class="map-info-overlay" id="map-info">Click map to set office location</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div class="fg"><label class="fl">Latitude</label><input class="input" type="number" step="0.00001" id="set-lat" placeholder="9.07230" oninput="onLatLngInput()"/></div>
+            <div class="fg"><label class="fl">Longitude</label><input class="input" type="number" step="0.00001" id="set-lng" placeholder="7.49130" oninput="onLatLngInput()"/></div>
+            <div class="fg"><label class="fl">Radius</label>
+              <select class="input" id="set-radius" onchange="onRadiusChange()">
+                <option value="50">50m</option><option value="100" selected>100m</option>
+                <option value="150">150m</option><option value="200">200m</option>
+                <option value="300">300m</option><option value="500">500m</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-p" onclick="saveLocation()">💾 Save to Cloud</button>
+            <button class="btn" onclick="useMyLocation()">📍 Use My Location</button>
+          </div>
+        </div>
+        <div class="sc glass">
+          <h3>⏰ Work Hours</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div class="fg"><label class="fl">Start</label><input class="input" type="time" id="set-start" value="08:00"/></div>
+            <div class="fg"><label class="fl">Grace (mins)</label><input class="input" type="number" id="set-grace" value="10" min="0" max="60"/></div>
+            <div class="fg"><label class="fl">End</label><input class="input" type="time" id="set-end" value="17:00"/></div>
+          </div>
+          <button class="btn btn-p" onclick="saveWorkHours()">Save Hours</button>
+        </div>
+        <div class="sc glass">
+          <h3>🎨 Preferences</h3>
+          <div class="sr"><div class="sr-l"><h4>Dark Mode</h4><p>Switch theme</p></div><div class="toggle on" id="theme-tog" onclick="this.classList.toggle('on');document.body.dataset.theme=this.classList.contains('on')?'dark':'light'"></div></div>
+          <div class="sr"><div class="sr-l"><h4>Device Lock</h4><p>One phone per account</p></div><div class="toggle on"></div></div>
+          <div class="sr"><div class="sr-l"><h4>Auto-refresh Live</h4><p>Every 30 seconds</p></div><div class="toggle on"></div></div>
+        </div>
+        <div class="sc glass" style="border-color:rgba(248,113,113,0.2);">
+          <h3 style="color:var(--danger);">⚠️ Danger Zone</h3>
+          <button class="btn btn-d" onclick="adminLogout()">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="m-add-emp">
+  <div class="modal glass-d">
+    <div class="modal-x" onclick="closeM('m-add-emp')">✕</div>
+    <div class="modal-title">Add New Employee</div>
+    <div class="modal-sub">Register employee — they sign up on the employee portal</div>
+    <div class="fg"><label class="fl">Full Name</label><input class="input" id="ne-name" placeholder="John Doe"/></div>
+    <div class="fg"><label class="fl">Department</label>
+      <select class="input" id="ne-dept"><option>Sales</option><option>IT</option><option>HR</option><option>Finance</option><option>Operations</option><option>General</option></select>
+    </div>
+    <div class="fg"><label class="fl">Role</label><input class="input" id="ne-role" placeholder="e.g. Developer"/></div>
+    <div class="fg"><label class="fl">Phone</label><input class="input" id="ne-phone" type="tel" placeholder="+234…"/></div>
+    <div class="mfooter">
+      <button class="btn btn-full" onclick="closeM('m-add-emp')">Cancel</button>
+      <button class="btn btn-p btn-full" onclick="addEmployee()">Add Employee</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="m-edit-emp">
+  <div class="modal glass-d">
+    <div class="modal-x" onclick="closeM('m-edit-emp')">✕</div>
+    <div class="modal-title">Edit Employee</div>
+    <input type="hidden" id="edit-uid"/>
+    <div class="fg"><label class="fl">Full Name</label><input class="input" id="edit-name"/></div>
+    <div class="fg"><label class="fl">Department</label>
+      <select class="input" id="edit-dept"><option>Sales</option><option>IT</option><option>HR</option><option>Finance</option><option>Operations</option><option>General</option></select>
+    </div>
+    <div class="fg"><label class="fl">Role</label><input class="input" id="edit-role"/></div>
+    <div class="fg"><label class="fl">Status</label><select class="input" id="edit-status"><option>Active</option><option>Suspended</option></select></div>
+    <div class="mfooter">
+      <button class="btn btn-full" onclick="closeM('m-edit-emp')">Cancel</button>
+      <button class="btn btn-p btn-full" onclick="saveEmpEdit()">Save</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="m-unlock">
+  <div class="modal glass-d" style="text-align:center;">
+    <div style="font-size:40px;margin-bottom:10px;">🔓</div>
+    <div class="modal-title">Unlock Device</div>
+    <div class="modal-sub">Employee can log in from a new phone after unlocking.</div>
+    <input type="hidden" id="unlock-uid"/>
+    <div class="mfooter">
+      <button class="btn btn-full" onclick="closeM('m-unlock')">Cancel</button>
+      <button class="btn btn-w btn-full" onclick="unlockDevice()">Unlock</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="m-manual-ci">
+  <div class="modal glass-d">
+    <div class="modal-x" onclick="closeM('m-manual-ci')">✕</div>
+    <div class="modal-title">Manual Check-In</div>
+    <div class="modal-sub">Log attendance manually for an employee</div>
+    <div class="fg"><label class="fl">Employee</label><select class="input" id="mci-emp"></select></div>
+    <div class="fg"><label class="fl">Date</label><input class="input" type="date" id="mci-date"/></div>
+    <div class="fg"><label class="fl">Check-In Time</label><input class="input" type="time" id="mci-in"/></div>
+    <div class="fg"><label class="fl">Check-Out (optional)</label><input class="input" type="time" id="mci-out"/></div>
+    <div class="fg"><label class="fl">Note</label><input class="input" id="mci-note" placeholder="e.g. Device lost"/></div>
+    <div class="mfooter">
+      <button class="btn btn-full" onclick="closeM('m-manual-ci')">Cancel</button>
+      <button class="btn btn-p btn-full" onclick="saveManualCI()">Save</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- Google Maps -->
+<script>
+var gMap,gMarker,gCircle;
+var PL=9.0723,PLn=7.4913,PR=100;
+function initMap(){
+  var c={lat:PL,lng:PLn};
+  gMap=new google.maps.Map(document.getElementById('gmap'),{center:c,zoom:16,
+    styles:[{elementType:'geometry',stylers:[{color:'#1a1a2e'}]},{elementType:'labels.text.fill',stylers:[{color:'#9aa0a6'}]},{elementType:'labels.text.stroke',stylers:[{color:'#1a1a2e'}]},{featureType:'road',elementType:'geometry',stylers:[{color:'#283040'}]},{featureType:'water',elementType:'geometry',stylers:[{color:'#17263c'}]},{featureType:'poi',elementType:'geometry',stylers:[{color:'#202020'}]}]
+  });
+  gMarker=new google.maps.Marker({position:c,map:gMap,draggable:true,icon:{url:'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'}});
+  gCircle=new google.maps.Circle({map:gMap,center:c,radius:PR,fillColor:'#4fa3e3',fillOpacity:0.15,strokeColor:'#4fa3e3',strokeOpacity:0.6,strokeWeight:2});
+  gMap.addListener('click',function(e){setPin(e.latLng.lat(),e.latLng.lng());});
+  gMarker.addListener('dragend',function(e){setPin(e.latLng.lat(),e.latLng.lng());});
+  updateMapInfo();
+}
+function setPin(lat,lng){
+  PL=lat;PLn=lng;
+  var p={lat:lat,lng:lng};
+  gMarker.setPosition(p);gCircle.setCenter(p);gMap.panTo(p);
+  document.getElementById('set-lat').value=lat.toFixed(6);
+  document.getElementById('set-lng').value=lng.toFixed(6);
+  updateMapInfo();
+}
+function updateMapInfo(){
+  var el=document.getElementById('map-info');
+  if(el) el.textContent='Lat: '+PL.toFixed(5)+', Lng: '+PLn.toFixed(5)+' · Radius: '+PR+'m';
+}
+window.onLatLngInput=function(){
+  var lat=parseFloat(document.getElementById('set-lat').value);
+  var lng=parseFloat(document.getElementById('set-lng').value);
+  if(isNaN(lat)||isNaN(lng)) return;
+  PL=lat;PLn=lng;
+  if(gMap&&gMarker){var p={lat:lat,lng:lng};gMarker.setPosition(p);gCircle.setCenter(p);gMap.panTo(p);}
+  updateMapInfo();
+};
+window.onRadiusChange=function(){
+  PR=parseInt(document.getElementById('set-radius').value);
+  if(gCircle) gCircle.setRadius(PR);
+  updateMapInfo();
+};
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGcVYrFUl9tU1Qwf9Ud22h-j6NKaD2RKU&callback=initMap" async defer></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, addDoc, limit, Timestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const fb=initializeApp({apiKey:"AIzaSyAGcVYrFUl9tU1Qwf9Ud22h-j6NKaD2RKU",authDomain:"convox-01.firebaseapp.com",projectId:"convox-01",storageBucket:"convox-01.firebasestorage.app",messagingSenderId:"92572217972",appId:"1:92572217972:web:3f7e6ca9cd5badcecf9721"});
+const auth=getAuth(fb), db=getFirestore(fb);
+const DEFAULT_CODE='IMA1904';
+const AD={user:null,profile:null,employees:[],rptType:'daily'};
+let refreshTimer=null;
+
+onAuthStateChanged(auth, async user=>{
+  if(!user){hideWB();showAuth();return;}
+  AD.user=user;
+  showWB();hideAuth();
+  try{
+    const snap=await getDoc(doc(db,'employees',user.uid));
+    if(!snap.exists()||snap.data().isAdmin!==true){
+      toast('Not authorized as admin','e');
+      await signOut(auth);hideWB();showAuth();return;
+    }
+    AD.profile=snap.data();
+    const fname=(AD.profile.name||'Admin').split(' ')[0];
+    document.getElementById('wb-av').textContent=(AD.profile.initials||fname[0]).toUpperCase();
+    document.getElementById('wb-name').textContent=fname;
+    // Load office location into map
+    try{
+      const os=await getDoc(doc(db,'settings','office'));
+      if(os.exists()){
+        const o=os.data();
+        window.PL=Number(o.lat);window.PLn=Number(o.lng);window.PR=Number(o.radius)||100;
+        document.getElementById('set-lat').value=o.lat;
+        document.getElementById('set-lng').value=o.lng;
+        document.getElementById('set-radius').value=o.radius||100;
+        // Update map if already initialized
+        if(window.gMap&&window.gMarker){
+          var p={lat:Number(o.lat),lng:Number(o.lng)};
+          window.gMarker.setPosition(p);window.gCircle.setCenter(p);
+          window.gCircle.setRadius(Number(o.radius)||100);window.gMap.panTo(p);
+        }
+        window.updateMapInfo&&window.updateMapInfo();
+      }
+    }catch(_){}
+    await new Promise(r=>setTimeout(r,1100));
+    enterDash();
+  }catch(e){toast('Error: '+e.message,'e');await signOut(auth);hideWB();showAuth();}
+});
+
+function enterDash(){
+  hideWB();
+  document.getElementById('main-app').style.display='flex';
+  document.getElementById('adm-av').textContent=(AD.profile.initials||(AD.profile.name||'A')[0]).toUpperCase();
+  document.getElementById('adm-name').textContent=AD.profile.name||'Admin';
+  tickClock();setInterval(tickClock,1000);
+  setToday();
+  loadLive();loadEmployees();loadLeave();loadComplaints();
+  refreshTimer=setInterval(loadLive,30000);
+}
+function showAuth(){document.getElementById('auth-screen').classList.remove('gone');}
+function hideAuth(){document.getElementById('auth-screen').classList.add('gone');}
+function showWB(){document.getElementById('wb-screen').classList.add('show');}
+function hideWB(){document.getElementById('wb-screen').classList.remove('show');}
+
+// AUTH
+window.adminSignIn=async function(){
+  const email=document.getElementById('si-email').value.trim();
+  const pwd=document.getElementById('si-pwd').value;
+  const err=document.getElementById('si-err');err.classList.remove('show');
+  if(!email||!pwd){err.textContent='Fill all fields.';err.classList.add('show');return;}
+  const btn=document.getElementById('si-btn');btn.disabled=true;btn.textContent='Signing in…';
+  try{await signInWithEmailAndPassword(auth,email,pwd);}
+  catch(e){err.textContent=ae(e.code);err.classList.add('show');}
+  finally{btn.disabled=false;btn.textContent='Sign In →';}
+};
+
+window.adminSignUp=async function(){
+  const name=document.getElementById('su-name').value.trim();
+  const email=document.getElementById('su-email').value.trim();
+  const pwd=document.getElementById('su-pwd').value;
+  const code=document.getElementById('su-code').value.trim().toUpperCase();
+  const err=document.getElementById('su-err');err.classList.remove('show');
+  if(!name||!email||!pwd||!code){err.textContent='All fields required.';err.classList.add('show');return;}
+  if(pwd.length<6){err.textContent='Password min 6 chars.';err.classList.add('show');return;}
+  let valid=(code===DEFAULT_CODE);
+  if(!valid){
+    try{const qs=await getDocs(query(collection(db,'companies'),where('adminCode','==',code),where('status','==','Active')));valid=!qs.empty;}catch(_){}
+  }
+  if(!valid){err.textContent='Invalid code. Use "IMA1904" or your company registration code.';err.classList.add('show');return;}
+  const btn=document.getElementById('su-btn');btn.disabled=true;btn.textContent='Creating…';
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pwd);
+    const uid=cred.user.uid;
+    const ini=name.split(' ').map(w=>w[0]).join('').toUpperCase().substr(0,2);
+    await setDoc(doc(db,'employees',uid),{uid,name,email,empId:'ADM'+uid.substr(0,5).toUpperCase(),dept:'Administration',role:'Admin',initials:ini,isAdmin:true,deviceId:null,status:'Active',adminCode:code,createdAt:Timestamp.now()});
+  }catch(e){err.textContent=ae(e.code);err.classList.add('show');}
+  finally{btn.disabled=false;btn.textContent='Create Admin Account →';}
+};
+
+window.doForgot=async function(){
+  const email=document.getElementById('si-email').value.trim();
+  if(!email){toast('Enter email above','e');return;}
+  try{await sendPasswordResetEmail(auth,email);toast('Reset link sent ✉️','s');}
+  catch(e){toast(ae(e.code),'e');}
+};
+window.adminLogout=async function(){
+  clearInterval(refreshTimer);AD.user=null;AD.profile=null;AD.employees=[];
+  document.getElementById('main-app').style.display='none';
+  try{await signOut(auth);}catch(_){}
+};
+function ae(c){const m={'auth/wrong-password':'Incorrect password.','auth/user-not-found':'No account found.','auth/invalid-credential':'Invalid email or password.','auth/email-already-in-use':'Email already registered.','auth/weak-password':'Password too weak.','auth/invalid-email':'Invalid email.','auth/too-many-requests':'Too many attempts.'};return m[c]||'Error. Try again.';}
+
+// CLOCK
+function tickClock(){document.getElementById('adm-clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function setToday(){const t=new Date().toISOString().split('T')[0];['f-date','mci-date','rpt-from','rpt-to'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});}
+
+// LIVE
+window.loadLive=async function(){
+  const today=new Date().toISOString().split('T')[0];
+  try{
+    const snap=await getDocs(query(collection(db,'attendance'),where('date','==',today),limit(200)));
+    const recs=snap.docs.map(d=>d.data());
+    const p=recs.filter(r=>r.status==='Present').length;
+    const l=recs.filter(r=>r.status==='Late').length;
+    const o=recs.filter(r=>r.checkout).length;
+    const a=Math.max(0,AD.employees.filter(e=>!e.isAdmin).length-(p+l));
+    document.getElementById('kpi-present').textContent=p+l;
+    document.getElementById('kpi-absent').textContent=a;
+    document.getElementById('kpi-late').textContent=l;
+    document.getElementById('kpi-out').textContent=o;
+    const tbody=document.getElementById('live-tbody');
+    if(!recs.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">📭</div>No check-ins yet</div></td></tr>`;document.getElementById('dept-bd').innerHTML='<div style="font-size:12px;color:var(--text3);padding:10px;">No data</div>';document.getElementById('alerts').innerHTML='<div style="font-size:12px;color:var(--text3);padding:10px;">No alerts 🎉</div>';return;}
+    tbody.innerHTML=recs.map(r=>{const c=r.status==='Present'?'cs':r.status==='Late'?'cw':'cd';return `<tr><td><strong>${r.empName||'—'}</strong><br/><span style="font-size:10px;color:var(--text3);">${r.empId||''}</span></td><td>${r.dept||'—'}</td><td>${r.checkin||'—'}</td><td>${r.checkout||'—'}</td><td>${r.hours||'—'}</td><td><span class="chip ${c}">${r.status}</span></td></tr>`;}).join('');
+    const depts={};recs.forEach(r=>{depts[r.dept]=depts[r.dept]||{p:0,l:0};if(r.status==='Present')depts[r.dept].p++;else if(r.status==='Late')depts[r.dept].l++;});
+    document.getElementById('dept-bd').innerHTML=Object.entries(depts).map(([d,s])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);"><span style="font-size:13px;">${d}</span><div style="display:flex;gap:5px;"><span class="chip cs">${s.p} ✅</span>${s.l?`<span class="chip cw">${s.l} ⏰</span>`:''}</div></div>`).join('');
+    const lates=recs.filter(r=>r.status==='Late');
+    document.getElementById('alerts').innerHTML=lates.length?lates.map(r=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">⏰ ${r.empName} late at ${r.checkin}</div>`).join(''):'<div style="font-size:12px;color:var(--text3);padding:10px;">No alerts today 🎉</div>';
+  }catch(e){console.warn('live:',e.message);}
+};
+
+// EMPLOYEES
+async function loadEmployees(){
+  try{const snap=await getDocs(collection(db,'employees'));AD.employees=snap.docs.map(d=>({uid:d.id,...d.data()}));renderEmps();populateMCI();}
+  catch(e){console.warn('emp:',e.message);}
+}
+window.renderEmps=function(){
+  const q=(document.getElementById('emp-search')?.value||'').toLowerCase();
+  const list=AD.employees.filter(e=>!e.isAdmin).filter(e=>(e.name||'').toLowerCase().includes(q)||(e.dept||'').toLowerCase().includes(q)||(e.empId||'').toLowerCase().includes(q));
+  const grid=document.getElementById('emp-grid');
+  if(!list.length){grid.innerHTML=`<div class="empty"><div class="empty-icon">📭</div>No employees</div>`;return;}
+  grid.innerHTML=list.map(e=>`<div class="ecard glass"><div class="ecard-hdr"><div class="eav">${e.initials||(e.name||'?')[0]}</div><div class="eav-info"><h4>${e.name||'—'}</h4><p>${e.role||'—'}</p></div></div><div class="edet"><div class="edet-row"><span class="edet-lbl">ID</span><strong>${e.empId||'—'}</strong></div><div class="edet-row"><span class="edet-lbl">Dept</span><span>${e.dept||'—'}</span></div><div class="edet-row"><span class="edet-lbl">Email</span><span style="font-size:10px;">${e.email||'—'}</span></div><div class="edet-row"><span class="edet-lbl">Status</span><span class="chip ${e.status==='Active'?'cs':'cd'}">${e.status||'Active'}</span></div><div class="edet-row"><span class="edet-lbl">Device</span><span style="font-size:10px;color:var(--text3);">${e.deviceId?'Locked 🔒':'Free'}</span></div></div><div class="eact"><button class="btn btn-sm" onclick="openEditEmp('${e.uid}')">✏️ Edit</button><button class="btn btn-sm btn-${e.status==='Active'?'w':'s'}" onclick="toggleStatus('${e.uid}','${e.status||'Active'}')">${e.status==='Active'?'Suspend':'Activate'}</button><button class="btn btn-sm" onclick="prepUnlock('${e.uid}')">🔓 Unlock</button></div></div>`).join('');
+};
+window.addEmployee=async function(){
+  const name=document.getElementById('ne-name').value.trim();
+  const dept=document.getElementById('ne-dept').value;
+  const role=document.getElementById('ne-role').value.trim();
+  const phone=document.getElementById('ne-phone').value.trim();
+  if(!name){toast('Name required','e');return;}
+  await addDoc(collection(db,'pendingEmployees'),{name,dept,role,phone,linked:false,createdAt:Timestamp.now()});
+  closeM('m-add-emp');['ne-name','ne-role','ne-phone'].forEach(id=>document.getElementById(id).value='');
+  toast(`${name} added ✅ They can now sign up on the employee portal`,'s');loadEmployees();
+};
+window.openEditEmp=function(uid){const e=AD.employees.find(x=>x.uid===uid);if(!e)return;document.getElementById('edit-uid').value=uid;document.getElementById('edit-name').value=e.name||'';document.getElementById('edit-dept').value=e.dept||'General';document.getElementById('edit-role').value=e.role||'';document.getElementById('edit-status').value=e.status||'Active';openM('m-edit-emp');};
+window.saveEmpEdit=async function(){const uid=document.getElementById('edit-uid').value;const name=document.getElementById('edit-name').value.trim();const dept=document.getElementById('edit-dept').value;const role=document.getElementById('edit-role').value.trim();const status=document.getElementById('edit-status').value;const ini=name.split(' ').map(w=>w[0]).join('').toUpperCase().substr(0,2);await updateDoc(doc(db,'employees',uid),{name,dept,role,status,initials:ini});closeM('m-edit-emp');toast('Updated ✅','s');loadEmployees();};
+window.toggleStatus=async function(uid,cur){const ns=cur==='Active'?'Suspended':'Active';await updateDoc(doc(db,'employees',uid),{status:ns});toast(`${ns==='Active'?'Activated':'Suspended'}`,'i');loadEmployees();};
+window.prepUnlock=function(uid){document.getElementById('unlock-uid').value=uid;openM('m-unlock');};
+window.unlockDevice=async function(){const uid=document.getElementById('unlock-uid').value;await updateDoc(doc(db,'employees',uid),{deviceId:null});closeM('m-unlock');toast('Device unlocked ✅','s');loadEmployees();};
+
+// RECORDS
+window.loadRecords=async function(){
+  const df=document.getElementById('f-date').value,dep=document.getElementById('f-dept').value,st=document.getElementById('f-status').value;
+  try{
+    let q=df?query(collection(db,'attendance'),where('date','==',df),limit(300)):query(collection(db,'attendance'),limit(300));
+    const snap=await getDocs(q);
+    let recs=snap.docs.map(d=>d.data()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    if(dep)recs=recs.filter(r=>r.dept===dep);if(st)recs=recs.filter(r=>r.status===st);
+    const tbody=document.getElementById('rec-tbody');
+    if(!recs.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="empty-icon">📭</div>No records</div></td></tr>`;return;}
+    tbody.innerHTML=recs.map(r=>{const c=r.status==='Present'?'cs':r.status==='Late'?'cw':'cd';return `<tr><td>${r.date||'—'}</td><td>${r.empName||'—'}</td><td>${r.dept||'—'}</td><td>${r.checkin||'—'}</td><td>${r.checkout||'—'}</td><td>${r.hours||'—'}</td><td><span class="chip ${c}">${r.status}</span></td><td style="font-size:10px;color:var(--text3);">${(r.deviceId||'').substr(0,12)}</td></tr>`;}).join('');
+  }catch(e){console.warn('rec:',e.message);}
+};
+window.clearFilters=function(){['f-date','f-dept','f-status'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});loadRecords();};
+
+// MANUAL CI
+function populateMCI(){const sel=document.getElementById('mci-emp');if(!sel)return;sel.innerHTML=AD.employees.filter(e=>!e.isAdmin).map(e=>`<option value="${e.uid}" data-eid="${e.empId}" data-name="${e.name}" data-dept="${e.dept}">${e.name} (${e.empId||''})</option>`).join('');}
+window.saveManualCI=async function(){const sel=document.getElementById('mci-emp');const opt=sel.selectedOptions[0];const date=document.getElementById('mci-date').value;const cin=document.getElementById('mci-in').value;const cout=document.getElementById('mci-out').value;const note=document.getElementById('mci-note').value;if(!date||!cin){toast('Date and check-in time required','e');return;}const[h,m]=cin.split(':').map(Number);const isLate=h>8||(h===8&&m>10);let hrs='—';if(cout){const[oh,om]=cout.split(':').map(Number);hrs=((oh*60+om-(h*60+m))/60).toFixed(1)+'h';}await addDoc(collection(db,'attendance'),{uid:sel.value,empId:opt?.dataset?.eid||'',empName:opt?.dataset?.name||'',dept:opt?.dataset?.dept||'',date,checkin:cin,checkout:cout||null,hours:hrs,status:isLate?'Late':'Present',checkinMs:Date.now(),checkinTs:Timestamp.now(),deviceId:'MANUAL-'+AD.user.uid,note});closeM('m-manual-ci');toast('Manual check-in saved ✅','s');loadLive();};
+
+// LEAVE
+async function loadLeave(){
+  try{
+    const snap=await getDocs(query(collection(db,'leaveRequests'),limit(100)));
+    const recs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdMs||0)-(a.createdMs||0));
+    const pending=recs.filter(r=>r.status==='Pending').length;
+    const badge=document.getElementById('lv-badge');badge.style.display=pending>0?'inline-flex':'none';badge.textContent=pending;
+    const el=document.getElementById('lv-list');
+    if(!recs.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📭</div>No leave requests</div>`;return;}
+    el.innerHTML=recs.map(r=>{const c=r.status==='Approved'?'cs':r.status==='Rejected'?'cd':'cw';return `<div class="litem"><div class="li-info"><h4>${r.empName||'—'} <span style="font-size:10px;color:var(--text3);">${r.empId||''}</span></h4><p>${r.type||'—'} · ${r.start||'—'} → ${r.end||'—'}${r.reason?' · "'+r.reason+'"':''}</p></div><div class="li-act">${r.status==='Pending'?`<button class="btn btn-sm btn-s" onclick="decideLeave('${r.id}','Approved')">✅ Approve</button><button class="btn btn-sm btn-d" onclick="decideLeave('${r.id}','Rejected')">❌ Reject</button>`:`<span class="chip ${c}">${r.status}</span>`}</div></div>`;}).join('');
+  }catch(e){console.warn('leave:',e.message);}
+}
+window.decideLeave=async function(id,dec){await updateDoc(doc(db,'leaveRequests',id),{status:dec,decidedAt:Timestamp.now()});toast(`Leave ${dec} ✅`,'s');loadLeave();};
+
+// COMPLAINTS
+async function loadComplaints(){
+  try{
+    const snap=await getDocs(query(collection(db,'complaints'),limit(100)));
+    const recs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdMs||0)-(a.createdMs||0));
+    const open=recs.filter(r=>r.status==='Open').length;
+    const badge=document.getElementById('cp-badge');badge.style.display=open>0?'inline-flex':'none';badge.textContent=open;
+    const el=document.getElementById('cp-list');
+    if(!recs.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📭</div>No complaints</div>`;return;}
+    el.innerHTML=recs.map(r=>{const c=r.status==='Resolved'?'cs':r.status==='In Review'?'cw':'ci';return `<div class="litem"><div class="li-info"><h4>${r.empName||'—'} – ${r.subject||'—'}</h4><p>${r.category||'—'} · ${(r.desc||'').substr(0,100)}</p></div><div class="li-act"><span class="chip ${c}">${r.status}</span>${r.status==='Open'?`<button class="btn btn-sm btn-w" onclick="updateComp('${r.id}','In Review')">Review</button>`:''}${r.status==='In Review'?`<button class="btn btn-sm btn-s" onclick="updateComp('${r.id}','Resolved')">Resolve</button>`:''}</div></div>`;}).join('');
+  }catch(e){console.warn('comp:',e.message);}
+}
+window.updateComp=async function(id,status){await updateDoc(doc(db,'complaints',id),{status,updatedAt:Timestamp.now()});toast('Updated ✅','s');loadComplaints();};
+
+// REPORTS
+window.selRpt=function(type,el){AD.rptType=type;document.querySelectorAll('.rtype').forEach(r=>r.classList.remove('sel'));el.classList.add('sel');};
+window.exportRpt=async function(fmt){
+  const from=document.getElementById('rpt-from').value,to=document.getElementById('rpt-to').value,dept=document.getElementById('rpt-dept').value;
+  const snap=await getDocs(query(collection(db,'attendance'),limit(500)));
+  let recs=snap.docs.map(d=>d.data()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(from)recs=recs.filter(r=>(r.date||'')>=from);if(to)recs=recs.filter(r=>(r.date||'')<=to);if(dept)recs=recs.filter(r=>r.dept===dept);
+  if(AD.rptType==='late')recs=recs.filter(r=>r.status==='Late');if(AD.rptType==='overtime')recs=recs.filter(r=>parseFloat(r.hours)>8);
+  const H=['Date','Employee','Dept','In','Out','Hours','Status'],R=recs.map(r=>[r.date,r.empName,r.dept||'',r.checkin||'',r.checkout||'',r.hours||'',r.status]);
+  document.getElementById('rpt-tbody').innerHTML=recs.slice(0,15).map(r=>{const c=r.status==='Present'?'cs':r.status==='Late'?'cw':'cd';return `<tr><td>${r.date}</td><td>${r.empName}</td><td>${r.dept||'—'}</td><td>${r.checkin||'—'}</td><td>${r.checkout||'—'}</td><td>${r.hours||'—'}</td><td><span class="chip ${c}">${r.status}</span></td></tr>`;}).join('');
+  if(fmt==='csv'){const csv=[H,...R].map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`realhr_${new Date().toISOString().split('T')[0]}.csv`;a.click();}
+  else if(fmt==='xlsx'&&window.XLSX){const ws=XLSX.utils.aoa_to_sheet([H,...R]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Attendance');XLSX.writeFile(wb,`realhr_${new Date().toISOString().split('T')[0]}.xlsx`);}
+  else{const w=window.open('','_blank');w.document.write(`<html><head><title>RealHR</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;font-size:12px}th{background:#f4f4f4}</style></head><body><h2>RealHR Attendance Report</h2><p>${new Date().toLocaleString()}</p><table><thead><tr>${H.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${R.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></body></html>`);w.document.close();w.print();}
+  toast('Exported ✅','s');
+};
+window.exportToday=async function(){const today=new Date().toISOString().split('T')[0];const snap=await getDocs(query(collection(db,'attendance'),where('date','==',today)));const recs=snap.docs.map(d=>d.data());const H=['Date','Employee','Dept','In','Out','Hours','Status'],R=recs.map(r=>[r.date,r.empName,r.dept||'',r.checkin||'',r.checkout||'',r.hours||'',r.status]);const csv=[H,...R].map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`attendance_${today}.csv`;a.click();toast('Exported ✅','s');};
+
+// SETTINGS
+window.saveLocation=async function(){
+  const lat=parseFloat(document.getElementById('set-lat').value);
+  const lng=parseFloat(document.getElementById('set-lng').value);
+  const radius=parseInt(document.getElementById('set-radius').value);
+  if(isNaN(lat)||isNaN(lng)){toast('Set a valid location on the map first','e');return;}
+  await setDoc(doc(db,'settings','office'),{lat,lng,radius,updatedAt:Timestamp.now(),updatedBy:AD.user.uid});
+  window.PL=lat;window.PLn=lng;window.PR=radius;
+  if(window.gMap&&window.gMarker){var p={lat,lng};window.gMarker.setPosition(p);window.gCircle.setCenter(p);window.gCircle.setRadius(radius);window.gMap.panTo(p);}
+  window.updateMapInfo&&window.updateMapInfo();
+  toast(`Location saved: (${lat.toFixed(4)}, ${lng.toFixed(4)}) · ${radius}m ✅`,'s');
+};
+window.useMyLocation=function(){
+  if(!navigator.geolocation){toast('GPS not available','e');return;}
+  toast('Getting your location…','i');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude,lng=pos.coords.longitude;
+    document.getElementById('set-lat').value=lat.toFixed(6);
+    document.getElementById('set-lng').value=lng.toFixed(6);
+    if(window.gMap)window.setPin(lat,lng);
+    toast('Location set to your position ✅','s');
+  },()=>toast('Could not get location','e'),{enableHighAccuracy:true,timeout:10000});
+};
+window.saveWorkHours=async function(){
+  const start=document.getElementById('set-start').value;
+  const grace=parseInt(document.getElementById('set-grace').value);
+  const end=document.getElementById('set-end').value;
+  await setDoc(doc(db,'settings','workHours'),{start,grace,end,updatedAt:Timestamp.now()});
+  toast('Work hours saved ✅','s');
+};
+
+// UI
+window.showPage=function(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nl').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nl-'+id).classList.add('active');
+  const titles={live:'Live Attendance',employees:'Employee Management',records:'Attendance Records',leave:'Leave Requests',complaints:'Complaints',reports:'Reports',settings:'Settings'};
+  document.getElementById('page-title').textContent=titles[id]||id;
+  document.getElementById('sidebar').classList.remove('open');
+  if(id==='records')loadRecords();
+  if(id==='leave')loadLeave();
+  if(id==='complaints')loadComplaints();
+};
+window.switchAuthTab=function(tab){document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.aform').forEach(f=>f.classList.remove('active'));document.getElementById('at-'+tab).classList.add('active');document.getElementById('af-'+tab).classList.add('active');};
+window.openM=id=>document.getElementById(id).classList.add('open');
+window.closeM=id=>document.getElementById(id).classList.remove('open');
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+let tt;window.toast=function(msg,type='i'){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast t-${type} show`;clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),4000);};
+</script>
+</body>
+</html>

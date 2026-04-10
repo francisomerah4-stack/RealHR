@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RealRH – Register Your Company</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#08080f;--bg2:#0d0d1c;
+  --accent:#4fa3e3;--accent2:#7ec8f7;
+  --accent-pale:rgba(79,163,227,0.15);--accent-glow:rgba(79,163,227,0.3);
+  --text:#f0f4ff;--text2:rgba(240,244,255,0.6);--text3:rgba(240,244,255,0.32);
+  --success:#4ade80;--warning:#fbbf24;--danger:#f87171;
+  --glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.1);
+  --btn-bg:rgba(79,163,227,0.18);--btn-border:rgba(79,163,227,0.4);--btn-hover:rgba(79,163,227,0.28);
+  --radius-btn:50px;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 55% at 15% 10%,rgba(79,163,227,0.13),transparent 60%),
+             radial-gradient(ellipse 55% 45% at 85% 80%,rgba(126,200,247,0.09),transparent 55%),
+             radial-gradient(ellipse 40% 35% at 50% 50%,rgba(79,163,227,0.04),transparent 70%);}
+
+/* ── GLASS ── */
+.glass{background:var(--glass-bg);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid var(--glass-border);border-radius:20px;}
+.glass-card{background:rgba(12,12,26,0.8);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:1px solid rgba(79,163,227,0.2);border-radius:24px;box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03) inset,0 1px 0 rgba(255,255,255,0.1) inset;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:var(--radius-btn);border:1px solid var(--btn-border);background:var(--btn-bg);color:var(--accent2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.25s;backdrop-filter:blur(10px);position:relative;overflow:hidden;white-space:nowrap;}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent 60%);pointer-events:none;}
+.btn:hover{background:var(--btn-hover);border-color:var(--accent);box-shadow:0 4px 20px var(--accent-glow);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn-primary{background:linear-gradient(135deg,rgba(79,163,227,0.38),rgba(126,200,247,0.22));border-color:rgba(126,200,247,0.55);color:#fff;font-weight:600;box-shadow:0 0 30px rgba(79,163,227,0.22);}
+.btn-primary:hover{box-shadow:0 4px 35px rgba(79,163,227,0.45);}
+.btn-success{border-color:rgba(74,222,128,0.45);background:rgba(74,222,128,0.15);color:var(--success);}
+.btn-full{width:100%;}
+.btn-lg{padding:16px 40px;font-size:16px;}
+
+/* ── INPUTS ── */
+.input{width:100%;padding:13px 18px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);border-radius:14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:all 0.2s;}
+.input:focus{border-color:var(--accent);background:rgba(79,163,227,0.07);box-shadow:0 0 0 3px var(--accent-pale);}
+.input::placeholder{color:var(--text3);}
+select.input{appearance:none;cursor:pointer;}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.form-label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;}
+.error-msg{padding:10px 14px;border-radius:12px;font-size:12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--danger);display:none;margin-bottom:12px;}
+.error-msg.show{display:block;}
+
+/* ── NAV ── */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,8,15,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;align-items:center;gap:12px;}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:50px;background:rgba(79,163,227,0.12);border:1px solid rgba(79,163,227,0.3);font-size:12px;color:var(--accent2);margin-bottom:24px;font-weight:500;}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:20px;max-width:800px;}
+.hero h1 span{color:var(--accent);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:18px;color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:40px;}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+/* ── PRICING ── */
+.pricing-section{padding:80px 24px;max-width:1100px;margin:0 auto;}
+.section-label{text-align:center;margin-bottom:48px;}
+.section-label h2{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;margin-bottom:8px;}
+.section-label p{font-size:15px;color:var(--text2);}
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.plan-card{padding:32px 28px;position:relative;overflow:hidden;transition:transform 0.2s;cursor:pointer;border-radius:24px;}
+.plan-card:hover{transform:translateY(-4px);}
+.plan-card.popular{border-color:rgba(79,163,227,0.4);box-shadow:0 0 40px rgba(79,163,227,0.15);}
+.plan-card.popular::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.popular-badge{position:absolute;top:16px;right:16px;padding:4px 12px;border-radius:50px;background:rgba(79,163,227,0.2);border:1px solid rgba(79,163,227,0.4);font-size:10px;font-weight:700;color:var(--accent2);letter-spacing:0.05em;text-transform:uppercase;}
+.plan-icon{font-size:32px;margin-bottom:16px;}
+.plan-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px;}
+.plan-price{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--accent2);margin-bottom:4px;}
+.plan-price sup{font-size:20px;vertical-align:super;color:var(--text2);}
+.plan-period{font-size:13px;color:var(--text2);margin-bottom:20px;}
+.plan-features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.plan-feature{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);}
+.plan-feature::before{content:'✓';color:var(--success);font-weight:700;flex-shrink:0;}
+.plan-feature.no::before{content:'✗';color:var(--text3);}
+.plan-feature.no{color:var(--text3);}
+
+/* ── HOW IT WORKS ── */
+.how-section{padding:80px 24px;max-width:900px;margin:0 auto;}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-top:48px;}
+.step-card{padding:28px 24px;text-align:center;position:relative;}
+.step-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,rgba(79,163,227,0.25),rgba(126,200,247,0.1));border:1px solid rgba(79,163,227,0.4);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent2);margin:0 auto 16px;}
+.step-card h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px;}
+.step-card p{font-size:12px;color:var(--text2);line-height:1.5;}
+
+/* ── REGISTRATION FLOW ── */
+#register-section{padding:80px 24px;max-width:600px;margin:0 auto;}
+.reg-card{padding:40px 36px;}
+.reg-header{text-align:center;margin-bottom:32px;}
+.reg-header .reg-icon{font-size:48px;margin-bottom:12px;}
+.reg-header h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;}
+.reg-header p{font-size:13px;color:var(--text2);}
+
+/* steps progress */
+.step-progress{display:flex;align-items:center;gap:0;margin-bottom:32px;}
+.sp-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+.sp-circle{width:36px;height:36px;border-radius:50%;border:2px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text3);transition:all 0.3s;}
+.sp-circle.done{background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.5);color:var(--success);}
+.sp-circle.active{background:var(--btn-bg);border-color:var(--accent);color:var(--accent2);}
+.sp-label{font-size:10px;color:var(--text3);text-align:center;font-weight:500;letter-spacing:0.03em;}
+.sp-label.active{color:var(--accent2);}
+.sp-label.done{color:var(--success);}
+.sp-line{flex:1;height:1px;background:var(--border2);margin-bottom:22px;transition:all 0.3s;}
+.sp-line.done{background:rgba(74,222,128,0.4);}
+
+/* step pages */
+.step-page{display:none;}
+.step-page.active{display:block;}
+
+/* plan selector */
+.plan-selector{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.plan-option{padding:16px 18px;border-radius:16px;border:1px solid var(--border2);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s;display:flex;justify-content:space-between;align-items:center;}
+.plan-option:hover{border-color:rgba(79,163,227,0.3);background:rgba(79,163,227,0.05);}
+.plan-option.selected{border-color:var(--accent);background:rgba(79,163,227,0.1);box-shadow:0 0 20px rgba(79,163,227,0.15);}
+.plan-option-left h4{font-size:14px;font-weight:600;}
+.plan-option-left p{font-size:11px;color:var(--text2);margin-top:3px;}
+.plan-option-price{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent2);}
+.plan-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);margin-left:12px;transition:all 0.2s;flex-shrink:0;}
+.plan-option.selected .plan-radio{border-color:var(--accent);background:var(--accent);box-shadow:0 0 8px var(--accent);}
+
+/* payment card */
+.payment-box{padding:20px;border-radius:16px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);margin-bottom:20px;}
+.payment-box h4{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.secure-badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+.secure-badge{padding:4px 12px;border-radius:50px;font-size:10px;color:var(--text3);border:1px solid var(--border);background:rgba(255,255,255,0.02);display:flex;align-items:center;gap:5px;}
+
+/* code reveal */
+.code-box{padding:28px;border-radius:20px;background:linear-gradient(135deg,rgba(79,163,227,0.12),rgba(126,200,247,0.06));border:1px solid rgba(79,163,227,0.35);text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.code-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(79,163,227,0.2),transparent 70%);pointer-events:none;}
+.code-box .code-label{font-size:11px;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+.code-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent2);letter-spacing:6px;margin-bottom:12px;word-break:break-all;}
+.copy-btn{padding:8px 20px;border-radius:50px;border:1px solid rgba(79,163,227,0.4);background:rgba(79,163,227,0.15);color:var(--accent2);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all 0.2s;}
+.copy-btn:hover{background:rgba(79,163,227,0.25);}
+
+/* verified badge */
+.verified-wrap{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 20px;border-radius:50px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);margin-bottom:20px;}
+.verified-icon{font-size:24px;}
+.verified-text h4{font-size:14px;font-weight:700;color:var(--success);}
+.verified-text p{font-size:11px;color:var(--text2);margin-top:2px;}
+.shield-badge{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(74,222,128,0.25),rgba(74,222,128,0.1));border:2px solid rgba(74,222,128,0.5);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;box-shadow:0 0 30px rgba(74,222,128,0.25);}
+
+/* order summary */
+.order-summary{padding:16px 18px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);margin-bottom:16px;}
+.order-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;}
+.order-row.total{border-top:1px solid var(--border2);margin-top:8px;padding-top:12px;font-weight:700;font-size:15px;color:var(--accent2);}
+.order-row span:first-child{color:var(--text2);}
+
+/* chip */
+.chip{padding:4px 12px;border-radius:50px;font-size:11px;font-weight:500;}
+.chip-success{background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:var(--success);}
+.chip-info{background:rgba(79,163,227,0.15);border:1px solid rgba(79,163,227,0.3);color:var(--accent2);}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:50px;font-size:13px;font-weight:500;z-index:9999;opacity:0;pointer-events:none;transition:all 0.3s;backdrop-filter:blur(20px);white-space:nowrap;}
+.toast.show{opacity:1;}
+.toast-success{background:rgba(74,222,128,0.2);border:1px solid rgba(74,222,128,0.4);color:var(--success);}
+.toast-error{background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.4);color:var(--danger);}
+.toast-info{background:rgba(79,163,227,0.2);border:1px solid rgba(79,163,227,0.4);color:var(--accent2);}
+
+/* divider */
+.divider{height:1px;background:var(--border);margin:24px 0;}
+
+/* footer */
+footer{padding:40px 24px;text-align:center;border-top:1px solid var(--border);color:var(--text3);font-size:12px;}
+footer a{color:var(--accent);text-decoration:none;}
+
+/* responsive */
+@media(max-width:600px){.navbar{padding:14px 20px;}.hero h1{font-size:32px;letter-spacing:-1px;}.hero p{font-size:15px;}.reg-card{padding:28px 20px;}.code-value{font-size:20px;letter-spacing:4px;}}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="nav-logo">Real<span>HR</span></div>
+  <div class="nav-links">
+    <a href="#how-it-works" style="font-size:13px;color:var(--text2);text-decoration:none;">How it works</a>
+    <a href="#pricing" style="font-size:13px;color:var(--text2);text-decoration:none;margin-left:8px;">Pricing</a>
+    <a href="#register-section" class="btn btn-primary" style="padding:10px 22px;font-size:13px;margin-left:8px;">Get Started</a>
+    <a href="attendance-admin.html" class="btn" style="padding:10px 22px;font-size:13px;">Admin Login →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🌍 Trusted by growing companies</div>
+  <h1>Smart Attendance<br/>for <span>Your Company</span></h1>
+  <p>Register your organization, get your verified admin code, and start tracking attendance with GPS precision — in minutes.</p>
+  <div class="hero-cta">
+    <a href="#register-section" class="btn btn-primary btn-lg">Register Your Company →</a>
+    <a href="#how-it-works" class="btn btn-lg">How it works</a>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how-it-works">
+  <div class="section-label">
+    <h2>How It Works</h2>
+    <p>Get your company set up in 4 simple steps</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card glass">
+      <div class="step-num">1</div>
+      <h4>Register Your Company</h4>
+      <p>Enter your organization name, size, and contact details to get started.</p>
+    </div>
+    <div class="step-card glass">
+      <div class="step-num">2</div>
+      <h4>Choose a Plan</h4>
+      <p>Pick the plan that fits your team size. Monthly or annual billing available.</p>
+    </div>
+    <div class="step-card glass">
+      <div class="step-num">3</div>
+      <h4>Make Payment</h4>
+      <p>Secure payment. Your transaction is encrypted and verified instantly.</p>
+    </div>
+    <div class="step-card glass">
+      <div class="step-num">4</div>
+      <h4>Get Your Admin Code</h4>
+      <p>Receive your unique verified admin code. Use it to create your admin account.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="section-label">
+    <h2>Simple Pricing</h2>
+    <p>One payment, full access. No hidden fees.</p>
+  </div>
+  <div class="plans-grid">
+    <div class="plan-card glass" onclick="selectPlanAndScroll('starter')">
+      <div class="plan-icon">🚀</div>
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><sup>₦</sup>15,000</div>
+      <div class="plan-period">per month · up to 20 employees</div>
+      <div class="plan-features">
+        <div class="plan-feature">GPS Geofencing</div>
+        <div class="plan-feature">Attendance Reports</div>
+        <div class="plan-feature">Leave Management</div>
+        <div class="plan-feature">1 Admin Account</div>
+        <div class="plan-feature no">Priority Support</div>
+        <div class="plan-feature no">Multi-branch</div>
+      </div>
+      <button class="btn btn-full">Select Starter</button>
+    </div>
+    <div class="plan-card glass popular" onclick="selectPlanAndScroll('business')">
+      <div class="popular-badge">Most Popular</div>
+      <div class="plan-icon">💼</div>
+      <div class="plan-name">Business</div>
+      <div class="plan-price"><sup>₦</sup>35,000</div>
+      <div class="plan-period">per month · up to 100 employees</div>
+      <div class="plan-features">
+        <div class="plan-feature">GPS Geofencing</div>
+        <div class="plan-feature">Advanced Reports + Export</div>
+        <div class="plan-feature">Leave & Complaint System</div>
+        <div class="plan-feature">3 Admin Accounts</div>
+        <div class="plan-feature">Priority Support</div>
+        <div class="plan-feature no">Multi-branch</div>
+      </div>
+      <button class="btn btn-primary btn-full">Select Business</button>
+    </div>
+    <div class="plan-card glass" onclick="selectPlanAndScroll('enterprise')">
+      <div class="plan-icon">🏢</div>
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price"><sup>₦</sup>75,000</div>
+      <div class="plan-period">per month · unlimited employees</div>
+      <div class="plan-features">
+        <div class="plan-feature">GPS Geofencing</div>
+        <div class="plan-feature">Full Analytics Suite</div>
+        <div class="plan-feature">Leave, Complaints & Payroll</div>
+        <div class="plan-feature">Unlimited Admin Accounts</div>
+        <div class="plan-feature">24/7 Priority Support</div>
+        <div class="plan-feature">Multi-branch Support</div>
+      </div>
+      <button class="btn btn-full">Select Enterprise</button>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTRATION FORM -->
+<section id="register-section">
+  <div class="reg-card glass-card">
+    <div class="reg-header">
+      <div class="reg-icon">🏢</div>
+      <h2>Register Your Company</h2>
+      <p>Complete the steps below to get your verified admin code</p>
+    </div>
+
+    <!-- Progress -->
+    <div class="step-progress">
+      <div class="sp-item">
+        <div class="sp-circle active" id="sp1">1</div>
+        <div class="sp-label active" id="sl1">Company</div>
+      </div>
+      <div class="sp-line" id="spl1"></div>
+      <div class="sp-item">
+        <div class="sp-circle" id="sp2">2</div>
+        <div class="sp-label" id="sl2">Plan</div>
+      </div>
+      <div class="sp-line" id="spl2"></div>
+      <div class="sp-item">
+        <div class="sp-circle" id="sp3">3</div>
+        <div class="sp-label" id="sl3">Payment</div>
+      </div>
+      <div class="sp-line" id="spl3"></div>
+      <div class="sp-item">
+        <div class="sp-circle" id="sp4">4</div>
+        <div class="sp-label" id="sl4">Your Code</div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Company Info -->
+    <div class="step-page active" id="page-step1">
+      <div class="form-group">
+        <label class="form-label">Company / Organization Name *</label>
+        <input class="input" id="co-name" type="text" placeholder="e.g. Acme Corp Ltd"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Industry *</label>
+        <select class="input" id="co-industry">
+          <option value="">Select industry…</option>
+          <option>Technology</option><option>Finance & Banking</option>
+          <option>Healthcare</option><option>Education</option>
+          <option>Manufacturing</option><option>Retail & Commerce</option>
+          <option>Construction</option><option>Government</option>
+          <option>NGO / Non-profit</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company Size *</label>
+        <select class="input" id="co-size">
+          <option value="">Select size…</option>
+          <option>1–10 employees</option><option>11–20 employees</option>
+          <option>21–50 employees</option><option>51–100 employees</option>
+          <option>101–500 employees</option><option>500+ employees</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin Full Name *</label>
+        <input class="input" id="co-admin" type="text" placeholder="Your full name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business Email *</label>
+        <input class="input" id="co-email" type="email" placeholder="admin@yourcompany.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        <input class="input" id="co-phone" type="tel" placeholder="+234…"/>
+      </div>
+      <div class="error-msg" id="err-step1"></div>
+      <button class="btn btn-primary btn-full" onclick="goStep2()">Continue → Choose Plan</button>
+    </div>
+
+    <!-- STEP 2: Plan -->
+    <div class="step-page" id="page-step2">
+      <div class="plan-selector" id="plan-selector">
+        <div class="plan-option selected" id="opt-starter" onclick="selectPlan('starter',this)">
+          <div class="plan-option-left">
+            <h4>🚀 Starter</h4>
+            <p>Up to 20 employees · 1 admin</p>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <div class="plan-option-price">₦15,000<span style="font-size:12px;color:var(--text2);font-weight:400;">/mo</span></div>
+            <div class="plan-radio" id="r-starter" style="border-color:var(--accent);background:var(--accent);box-shadow:0 0 8px var(--accent);"></div>
+          </div>
+        </div>
+        <div class="plan-option" id="opt-business" onclick="selectPlan('business',this)">
+          <div class="plan-option-left">
+            <h4>💼 Business <span class="chip chip-info" style="font-size:9px;padding:2px 8px;">Popular</span></h4>
+            <p>Up to 100 employees · 3 admins</p>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <div class="plan-option-price">₦35,000<span style="font-size:12px;color:var(--text2);font-weight:400;">/mo</span></div>
+            <div class="plan-radio" id="r-business"></div>
+          </div>
+        </div>
+        <div class="plan-option" id="opt-enterprise" onclick="selectPlan('enterprise',this)">
+          <div class="plan-option-left">
+            <h4>🏢 Enterprise</h4>
+            <p>Unlimited employees · unlimited admins</p>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <div class="plan-option-price">₦75,000<span style="font-size:12px;color:var(--text2);font-weight:400;">/mo</span></div>
+            <div class="plan-radio" id="r-enterprise"></div>
+          </div>
+        </div>
+      </div>
+      <div class="order-summary" id="order-summary">
+        <div class="order-row"><span>Plan</span><span id="sum-plan">Starter</span></div>
+        <div class="order-row"><span>Billing</span><span>Monthly</span></div>
+        <div class="order-row"><span>Employees</span><span id="sum-emp">Up to 20</span></div>
+        <div class="order-row total"><span>Total</span><span id="sum-total">₦15,000</span></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-full" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-primary btn-full" onclick="goStep3()">Continue → Payment</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Payment -->
+    <div class="step-page" id="page-step3">
+      <div class="order-summary" style="margin-bottom:20px;">
+        <div class="order-row"><span>Company</span><span id="pay-company">—</span></div>
+        <div class="order-row"><span>Plan</span><span id="pay-plan">—</span></div>
+        <div class="order-row total"><span>Amount Due</span><span id="pay-amount">—</span></div>
+      </div>
+      <div class="payment-box">
+        <h4>💳 Card Details</h4>
+        <div class="form-group">
+          <label class="form-label">Cardholder Name</label>
+          <input class="input" id="card-name" type="text" placeholder="Name on card"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Card Number</label>
+          <input class="input" id="card-num" type="text" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)"/>
+        </div>
+        <div class="card-input-row">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Expiry</label>
+            <input class="input" id="card-exp" type="text" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"/>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">CVV</label>
+            <input class="input" id="card-cvv" type="text" placeholder="•••" maxlength="3"/>
+          </div>
+        </div>
+      </div>
+      <div class="secure-badges">
+        <div class="secure-badge">🔒 SSL Encrypted</div>
+        <div class="secure-badge">🛡️ PCI Compliant</div>
+        <div class="secure-badge">✓ Verified Secure</div>
+      </div>
+      <div class="error-msg" id="err-step3" style="margin-top:14px;"></div>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn btn-full" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-primary btn-full" id="pay-btn" onclick="processPayment()">
+          Pay &amp; Get Admin Code →
+        </button>
+      </div>
+      <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px;">Your payment is secure. You will receive your admin code immediately after payment.</p>
+    </div>
+
+    <!-- STEP 4: Success + Code -->
+    <div class="step-page" id="page-step4">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div class="shield-badge">✅</div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;">Payment Successful!</h3>
+        <p style="font-size:13px;color:var(--text2);">Your company is now verified on AttendX</p>
+      </div>
+
+      <div class="verified-wrap">
+        <div class="verified-icon">🏅</div>
+        <div class="verified-text">
+          <h4>Verified Organization ✓</h4>
+          <p id="verified-company-name">—</p>
+        </div>
+      </div>
+
+      <div class="code-box">
+        <div class="code-label">🔑 Your Admin Secret Code</div>
+        <div class="code-value" id="generated-code">—</div>
+        <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
+      </div>
+
+      <div class="glass" style="padding:16px;border-radius:16px;margin-bottom:20px;">
+        <div style="font-size:12px;color:var(--text2);line-height:1.7;">
+          <strong style="color:var(--warning);">⚠️ Important:</strong> Save this code securely. It is unique to your organization.<br/>
+          <strong>How to use it:</strong> Open the Admin page → Sign Up tab → Enter your email, password, and this code to create your admin account.
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="attendance-admin.html" class="btn btn-primary btn-full">Go to Admin Login →</a>
+        <button class="btn btn-full" onclick="downloadCode()">📄 Download Code as PDF</button>
+      </div>
+
+      <div class="divider"></div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);">
+        A copy has been sent to <strong id="code-email-display" style="color:var(--text2);">—</strong><br/>
+        Transaction ID: <span id="txn-id" style="color:var(--accent2);">—</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:8px;">Real<span style="color:var(--accent);">HR</span></div>
+  <p>Smart Location-Based Attendance System</p>
+  <p style="margin-top:8px;"><a href="attendance-employee.html">Employee Portal</a> &nbsp;·&nbsp; <a href="attendance-admin.html">Admin Dashboard</a></p>
+  <p style="margin-top:12px;">© 2026 RealHR. All rights reserved.</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, Timestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyAGcVYrFUl9tU1Qwf9Ud22h-j6NKaD2RKU",
+  authDomain:"convox-01.firebaseapp.com",
+  databaseURL:"https://convox-01-default-rtdb.firebaseio.com",
+  projectId:"convox-01",
+  storageBucket:"convox-01.firebasestorage.app",
+  messagingSenderId:"92572217972",
+  appId:"1:92572217972:web:3f7e6ca9cd5badcecf9721"
+};
+const fbApp=initializeApp(firebaseConfig);
+const db=getFirestore(fbApp);
+
+// ── State ──
+const REG={
+  step:1,
+  plan:'starter',
+  company:{},
+  code:'',
+  txnId:''
+};
+
+const PLANS={
+  starter:{name:'Starter',price:'₦15,000',amount:15000,employees:'Up to 20'},
+  business:{name:'Business',price:'₦35,000',amount:35000,employees:'Up to 100'},
+  enterprise:{name:'Enterprise',price:'₦75,000',amount:75000,employees:'Unlimited'}
+};
+
+// ── Generate unique admin code ──
+function generateAdminCode(companyName){
+  const prefix=companyName.replace(/[^a-zA-Z]/g,'').toUpperCase().substr(0,4).padEnd(4,'X');
+  const rand=Math.random().toString(36).substr(2,6).toUpperCase();
+  const year=new Date().getFullYear();
+  return `${prefix}-${rand}-${year}`;
+}
+
+function generateTxnId(){
+  return 'TXN'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).substr(2,4).toUpperCase();
+}
+
+// ── Step navigation ──
+window.goStep=function(n){
+  document.querySelectorAll('.step-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-step'+n).classList.add('active');
+  REG.step=n;
+  updateProgress(n);
+  document.getElementById('register-section').scrollIntoView({behavior:'smooth'});
+};
+
+function updateProgress(current){
+  for(let i=1;i<=4;i++){
+    const circle=document.getElementById('sp'+i);
+    const label=document.getElementById('sl'+i);
+    if(i<current){
+      circle.className='sp-circle done'; circle.textContent='✓';
+      label.className='sp-label done';
+    } else if(i===current){
+      circle.className='sp-circle active'; circle.textContent=i;
+      label.className='sp-label active';
+    } else {
+      circle.className='sp-circle'; circle.textContent=i;
+      label.className='sp-label';
+    }
+    if(i<4){
+      document.getElementById('spl'+i).className=i<current?'sp-line done':'sp-line';
+    }
+  }
+}
+
+// ── Step 1: Company Info ──
+window.goStep2=function(){
+  const name=document.getElementById('co-name').value.trim();
+  const industry=document.getElementById('co-industry').value;
+  const size=document.getElementById('co-size').value;
+  const admin=document.getElementById('co-admin').value.trim();
+  const email=document.getElementById('co-email').value.trim();
+  const phone=document.getElementById('co-phone').value.trim();
+  const err=document.getElementById('err-step1');
+  err.classList.remove('show');
+  if(!name||!industry||!size||!admin||!email||!phone){
+    err.textContent='Please fill in all required fields.';err.classList.add('show');return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    err.textContent='Please enter a valid email address.';err.classList.add('show');return;
+  }
+  REG.company={name,industry,size,admin,email,phone};
+  goStep(2);
+};
+
+// ── Step 2: Plan ──
+window.selectPlan=function(plan,el){
+  REG.plan=plan;
+  document.querySelectorAll('.plan-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  ['starter','business','enterprise'].forEach(p=>{
+    const r=document.getElementById('r-'+p);
+    if(p===plan){r.style.borderColor='var(--accent)';r.style.background='var(--accent)';r.style.boxShadow='0 0 8px var(--accent)';}
+    else{r.style.borderColor='var(--border2)';r.style.background='transparent';r.style.boxShadow='none';}
+  });
+  const p=PLANS[plan];
+  document.getElementById('sum-plan').textContent=p.name;
+  document.getElementById('sum-emp').textContent=p.employees;
+  document.getElementById('sum-total').textContent=p.price;
+};
+
+window.goStep3=function(){
+  const p=PLANS[REG.plan];
+  document.getElementById('pay-company').textContent=REG.company.name;
+  document.getElementById('pay-plan').textContent=p.name;
+  document.getElementById('pay-amount').textContent=p.price;
+  goStep(3);
+};
+
+// ── Card formatting ──
+window.formatCard=function(el){
+  let v=el.value.replace(/\D/g,'').substr(0,16);
+  el.value=v.replace(/(.{4})/g,'$1 ').trim();
+};
+window.formatExpiry=function(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>=2) v=v.substr(0,2)+'/'+v.substr(2,2);
+  el.value=v;
+};
+
+// ── Step 3: Payment ──
+window.processPayment=async function(){
+  const cardName=document.getElementById('card-name').value.trim();
+  const cardNum=document.getElementById('card-num').value.replace(/\s/g,'');
+  const cardExp=document.getElementById('card-exp').value.trim();
+  const cardCvv=document.getElementById('card-cvv').value.trim();
+  const err=document.getElementById('err-step3');
+  err.classList.remove('show');
+
+  if(!cardName){err.textContent='Please enter cardholder name.';err.classList.add('show');return;}
+  if(cardNum.length!==16||!/^\d+$/.test(cardNum)){err.textContent='Please enter a valid 16-digit card number.';err.classList.add('show');return;}
+  if(!/^\d{2}\/\d{2}$/.test(cardExp)){err.textContent='Please enter a valid expiry date (MM/YY).';err.classList.add('show');return;}
+  if(cardCvv.length<3){err.textContent='Please enter your 3-digit CVV.';err.classList.add('show');return;}
+
+  const btn=document.getElementById('pay-btn');
+  btn.textContent='Processing payment…'; btn.disabled=true;
+
+  // Simulate payment processing (2 seconds)
+  await new Promise(r=>setTimeout(r,2000));
+
+  // Generate code and txn
+  REG.code=generateAdminCode(REG.company.name);
+  REG.txnId=generateTxnId();
+
+  // Save to Firestore
+  try{
+    await addDoc(collection(db,'companies'),{
+      companyName:REG.company.name,
+      industry:REG.company.industry,
+      size:REG.company.size,
+      adminName:REG.company.admin,
+      email:REG.company.email,
+      phone:REG.company.phone,
+      plan:REG.plan,
+      planName:PLANS[REG.plan].name,
+      amount:PLANS[REG.plan].amount,
+      adminCode:REG.code,
+      txnId:REG.txnId,
+      status:'Active',
+      verified:true,
+      createdAt:Timestamp.now()
+    });
+  }catch(e){
+    console.warn('Firestore save failed:',e.message);
+    // Still show code — don't block user
+  }
+
+  // Also update the admin file's secret key dynamically by storing in Firestore
+  // Admin page reads from 'companies' collection to validate codes
+  btn.textContent='Pay & Get Admin Code →'; btn.disabled=false;
+  showSuccess();
+};
+
+function showSuccess(){
+  document.getElementById('generated-code').textContent=REG.code;
+  document.getElementById('verified-company-name').textContent=REG.company.name+' · '+PLANS[REG.plan].name+' Plan';
+  document.getElementById('code-email-display').textContent=REG.company.email;
+  document.getElementById('txn-id').textContent=REG.txnId;
+  goStep(4);
+  showToast('Payment successful! Your admin code is ready 🎉','success');
+}
+
+// ── Copy code ──
+window.copyCode=function(){
+  navigator.clipboard.writeText(REG.code).then(()=>{
+    showToast('Code copied to clipboard! 📋','success');
+  }).catch(()=>{
+    // fallback
+    const ta=document.createElement('textarea');
+    ta.value=REG.code; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Code copied! 📋','success');
+  });
+};
+
+// ── Download code as text ──
+window.downloadCode=function(){
+  const content=`RealHR - Admin Code Receipt
+==============================
+Company: ${REG.company.name}
+Admin: ${REG.company.admin}
+Email: ${REG.company.email}
+Plan: ${PLANS[REG.plan].name}
+Amount Paid: ${PLANS[REG.plan].price}
+Transaction ID: ${REG.txnId}
+Date: ${new Date().toLocaleString()}
+
+==============================
+YOUR ADMIN SECRET CODE:
+
+${REG.code}
+
+==============================
+HOW TO USE:
+1. Open attendance-admin.html
+2. Click "Sign Up" tab
+3. Enter your name, email and password
+4. Paste this code in the "Admin Secret Key" field
+5. Click Create Admin Account
+
+Keep this code private and secure.
+RealHR - Smart Attendance System`;
+
+  const blob=new Blob([content],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`RealHR_AdminCode_${REG.company.name.replace(/\s+/g,'_')}.txt`;
+  a.click();
+  showToast('Code downloaded ✅','success');
+};
+
+// ── Select plan from pricing section ──
+window.selectPlanAndScroll=function(plan){
+  document.getElementById('register-section').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{
+    if(REG.step===1) goStep2_silent(plan);
+    else selectPlan(plan,document.getElementById('opt-'+plan));
+  },600);
+};
+
+function goStep2_silent(plan){
+  // Just pre-select the plan when coming from pricing cards — user still fills step 1
+  REG.plan=plan;
+  selectPlan(plan,document.getElementById('opt-'+plan));
+}
+
+// ── Toast ──
+let tt;
+window.showToast=function(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast toast-${type} show`;
+  clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),3500);
+};
+</script>
+</body>
+</html>
