@@ -1,0 +1,167 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Lecturer — ConvoX</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+<style>
+body{background:#060607;color:#fff;font-family:Inter,Arial;padding:18px}
+.card{max-width:760px;margin:28px auto;background:rgba(255,255,255,0.03);
+      padding:22px;border-radius:14px;backdrop-filter:blur(12px)}
+label{color:#bbb;font-size:13px;display:block;margin-top:10px}
+input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;
+      background:rgba(255,255,255,0.04);color:#fff;font-size:16px}
+button{padding:14px;border-radius:12px;border:none;background:#28a745;
+       color:#fff;font-weight:700;cursor:pointer;width:100%;font-size:16px;margin-top:12px}
+#status{margin-top:10px;font-weight:600}
+#sessionCode{
+  font-size:34px;font-weight:800;text-align:center;padding:12px;
+  margin:16px 0;
+  background:linear-gradient(270deg,#00b7ff,#28a745,#ffdd00);
+  background-size:600% 600%;
+  animation: glow 4s linear infinite;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+@keyframes glow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.distanceContainer{display:none;margin-top:16px}
+.students{margin-top:20px;background:rgba(255,255,255,0.02);
+          padding:12px;border-radius:10px;max-height:240px;overflow:auto}
+.stud{padding:6px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.downloadBtn{background:#ff9800;margin-top:10px}
+</style>
+</head>
+
+<body>
+<div class="card">
+  <h2 style="text-align:center">Start Attendance</h2>
+
+  <div id="sessionCode">—</div>
+
+  <label>Course title / code</label>
+  <input id="course" placeholder="GST 111 or MTH102">
+
+  <button id="gen">Generate Code & Start</button>
+
+  <div class="distanceContainer" id="distanceBox">
+    <label>Adjust allowed range</label>
+    <input id="range" type="range" min="20" max="200" value="50">
+    <div id="rangeVal">50 m</div>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="students">
+    <strong>Students joined:</strong>
+    <div id="studentList"><i>No students yet</i></div>
+    <button class="downloadBtn" id="download">Download List</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { getDatabase, ref, push, set, onValue, update, get }
+  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBXtgGC8uhTNZag5-hV9cg2_Bs6FpWNb14",
+  authDomain: "convox-cdriod1.firebaseapp.com",
+  databaseURL: "https://convox-cdriod1-default-rtdb.firebaseio.com",
+  projectId: "convox-cdriod1",
+  storageBucket: "convox-cdriod1.appspot.com",
+  messagingSenderId: "1005902587536",
+  appId: "1:1005902587536:web:d5ea4f3cf03ebf25e31a15"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let sessionId = null;
+let cachedLocation = null;
+
+const sessionCodeEl = document.getElementById("sessionCode");
+const statusEl = document.getElementById("status");
+const rangeInput = document.getElementById("range");
+const rangeVal = document.getElementById("rangeVal");
+const distanceBox = document.getElementById("distanceBox");
+const studentList = document.getElementById("studentList");
+
+rangeInput.oninput = () => rangeVal.textContent = rangeInput.value + " m";
+
+document.getElementById("gen").onclick = () => {
+  const course = document.getElementById("course").value.trim() || "Untitled";
+
+  const createSession = async (lat, lon) => {
+    const refSession = push(ref(db,"attendance/sessions"));
+    sessionId = refSession.key;
+
+    const code = Math.floor(100000 + Math.random()*900000).toString();
+    const now = Date.now();
+
+    await set(refSession,{
+      course,
+      code,
+      range:Number(rangeInput.value),
+      lat,
+      lon,
+      createdAt:now,
+      expiresAt:now+59000
+    });
+
+    sessionCodeEl.textContent = code;
+    distanceBox.style.display = "block";
+    statusEl.textContent = "Session live";
+
+    /* REAL-TIME STUDENTS */
+    onValue(ref(db,`attendance/sessions/${sessionId}/students`), snap=>{
+      if(!snap.exists()){ studentList.innerHTML="<i>No students yet</i>"; return; }
+      studentList.innerHTML="";
+      snap.forEach(c=>{
+        const s=c.val();
+        const d=document.createElement("div");
+        d.className="stud";
+        d.textContent=`${s.name} (${s.matric}) — ${s.time}`;
+        studentList.appendChild(d);
+      });
+    });
+
+    /* RANGE SYNC */
+    rangeInput.oninput = ()=>{
+      rangeVal.textContent = rangeInput.value + " m";
+      update(ref(db,`attendance/sessions/${sessionId}`),
+        {range:Number(rangeInput.value)});
+    };
+  };
+
+  if(cachedLocation){ createSession(cachedLocation.lat,cachedLocation.lon); return; }
+
+  navigator.geolocation.getCurrentPosition(pos=>{
+    cachedLocation={lat:pos.coords.latitude, lon:pos.coords.longitude};
+    createSession(cachedLocation.lat,cachedLocation.lon);
+  },()=>alert("Allow location access"),{enableHighAccuracy:true});
+};
+
+/* DOWNLOAD */
+document.getElementById("download").onclick = async ()=>{
+  if(!sessionId){ alert("No active session"); return; }
+
+  const snap = await get(ref(db,`attendance/sessions/${sessionId}/students`));
+  if(!snap.exists()){ alert("No students yet"); return; }
+
+  const rows=[["Name","Matric","Time","Distance(m)"]];
+  snap.forEach(c=>{
+    const s=c.val();
+    rows.push([s.name,s.matric,s.time,s.distance||""]);
+  });
+
+  const csv = rows.map(r=>r.join(",")).join("\n");
+  const blob = new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="attendance.csv";
+  a.click();
+};
+</script>
+</body>
+</html>

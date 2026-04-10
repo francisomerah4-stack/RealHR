@@ -1,0 +1,69 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <title>ConvoX - Loading</title>
+  <style>
+    body {
+      background: #000;
+      color: #ffffff;
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Main App Name */
+    .title {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      animation: fadeIn 2s ease-in-out forwards;
+      opacity: 0;
+    }
+
+    /* Powered by Omerah text */
+    .powered {
+      position: absolute;
+      bottom: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      overflow: hidden;
+      background: linear-gradient(90deg, #444, #fff, #444);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    /* Fade in effect */
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.9); }
+      
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Shining light animation */
+    @keyframes shine {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title">ConvoX</div>
+  <div class="powered"><center><i>from</i></center><h3>OMERAH</h3></div>
+
+  <script>
+    // After 3 seconds, move to next page
+    setTimeout(() => {
+      window.location.href = "linkpage.html";  // Change this to the next page
+    }, 3000);
+  </script>
+
+</body>
+</html>
